@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect
 from hashids import Hashids
 import random
 from short import generate_hash
@@ -16,6 +16,9 @@ regex = re.compile(
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 
+conn = psycopg2.connect('postgresql://postgres:postgres@localhost:15432/apophis')
+db = conn.cursor()
+
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -23,16 +26,12 @@ def index():
 
         if re.match(regex, url):
             ghash = generate_hash()
-            newurl = 'http://pfurl.me/' + ghash
+            newurl = 'http://localhost:5000/' + ghash
 
             results = {
                 "url": url,
                 "newurl": newurl
             }
-
-            conn = psycopg2.connect('postgresql://postgres:postgres@localhost:15432/apophis')
-
-            db = conn.cursor()
 
             statement = '''
             insert into pfurl (url, hash, newurl)
@@ -47,13 +46,21 @@ def index():
                 )
             )
             conn.commit()
-            conn.close()
 
             return render_template('result.html', results=results)
         else:
             return render_template('error.html', error="Input must contain valid url")
     else:
         return render_template('form.html')
+
+
+@app.route('/<hash>', methods=['GET', 'POST'])
+def hash_redirect(hash):
+    statement = 'select url from pfurl where hash=%s'
+    db.execute(statement, (hash,))
+    row = db.fetchone()
+    conn.close()
+    return redirect(row[0])
 
 
 if __name__ == "__main__":
