@@ -1,0 +1,178 @@
+<!doctype html>
+<html>
+  <head>
+    {% block head %}
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.css">
+
+<!--    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"> -->
+    <title>pfurl.me - url shortener</title>
+    {% endblock %}
+  </head>
+  <body>
+    {% block content %}
+    <style>
+        body {
+          background: #36393E;
+        }
+        h1 {
+            margin-top 3%;
+            color: #E6E6FA;
+            font-size: 22px;
+            line-height: 1;
+        }
+        
+        a:link {color:#3A87AD;}     
+        a:visited {color:#3A87AD;}  
+        a:hover {color:#3A87AD;}  
+        a:active {color:#3A87AD;} 
+        
+        .label {
+            padding: 3px 6px 5px;
+            font-size: 12px;
+        }
+        .logo {
+          margin-top: auto;
+          margin-bottom: auto;
+          margin-left: 200px;
+          margin-right: auto;
+          height: 250px;
+          width: 500px;
+          display: block;
+        }
+        .button {
+          display: inline-block;
+          position: relative;
+          overflow: hidden;
+          outline: 0;
+          border: none;
+          background: #984848;
+          text-decoration: none;
+          cursor: default;
+          color: #fff;
+        }
+
+
+        .button::before {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          content: '';
+          background-image: radial-gradient(
+            circle closest-side,
+             rgba(180,180,180,.25) 99%,
+             rgba(0,0,0,0) 100%
+        );
+    background-repeat: no-repeat;
+    transform: scale(5);
+    opacity: 0;
+    transition: .75s ease-out transform, .25s .5s ease-in opacity;
+    transform-origin: inherit;
+    background-position: inherit;
+  }
+
+  .button:active::before {
+    transition: none;
+    opacity: 1;
+    transform: scale(0);
+  }
+
+
+body {
+  font: 80%/1.5 Arial;
+}
+
+.button {
+  font: 120%/1.5 Arial;
+  border: none;
+  border-radius: 5px;
+  padding: .5em 1.3em;
+  vertical-align:middle;
+}
+        
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+</head> 
+<body>
+    <div class="container">
+        <div class="row" style="margin-top:0px;">
+            <div class="col-md-6">
+                <h1>
+                   <img src="/static/packetfire.png" alt="pflogo" class="logo">
+                </h1>
+            </div>
+        </div>
+        <hr/>
+        <div class="row" style="margin-top:28px;">
+            <div class="col-md-6">
+              <p></p>
+            </div>
+            <div class="col-md-6"> 
+            </div>
+        </div>
+        <div id="fruit">
+            <div class="row" style="margin-bottom:25px;margin-top:-100px;">
+                <div class="col-md-2 col-md-offset-1">
+                </div>
+                <div class="col-md-6">
+                  <form action="/index" method="POST">
+                    <input name="url" class="form-control input-md search-query" placeholder="url here.." type="text"> 
+                    
+                </div>
+                <div class="col-md-2">
+                    <button name="encode" type="submit" class="button form-control">Shorten</button> 
+                  </form>
+                </div>
+            </div> 
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+              <div id="resultsHeader"></div>
+      </div>
+        </div>
+
+        <div id="results">
+      </div> 
+  </div>
+    
+    <div id="shortModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header well lead">
+                    <a class="close" data-dismiss="modal">&times;</a>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Original URL</label> 
+                                    <input class="col-md-3 form-control" type="text" id="originalUrl">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Your Shortened URL</label>
+                                    <input class="col-md-3 form-control" type="text" id="shortenedUrl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer well lead" style="margin-bottom:0px;border-top:0px;">
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="row">
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.js"></script>
+    {% endblock %}
+    <div id="footer">
+      {% block footer %}
+      {% endblock %}
+    </div>
+  </body>
+</html>

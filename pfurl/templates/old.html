@@ -1,0 +1,119 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="utf-8"> 
+    <title>{{ .title }}</title> 
+    <meta name="description" content=""> 
+    <meta name="author" content=""> 
+
+    <!-- HTML5 shim, for IE6-8 support of HTML elements --> 
+    <!--[if lt IE 9]>
+        <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]--> 
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/css/bootstrap.css">
+
+    <style>
+        body {
+          background: #272822;
+        }
+        h1 {
+            margin-top 3%;
+            color: #E6E6FA;
+            font-size: 22px;
+#            letter-spacing: -1px;
+            line-height: 1;
+        }
+        
+        a:link {color:#3A87AD;}     
+        a:visited {color:#3A87AD;}  
+        a:hover {color:#3A87AD;}  
+        a:active {color:#3A87AD;} 
+        
+        .label {
+            padding: 3px 6px 5px;
+            font-size: 12px;
+        }
+        
+        
+    </style>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+</head> 
+<body>
+    <div class="container">
+        <div class="row" style="margin-top:0px;">
+            <div class="col-md-6">
+                <h1>
+<!--                    <img src="http://us.yunix.net/~bars/pfb.png" alt="pflogo" style="margin-top:1%;"> -->
+                  PFShurl
+                </h1>
+            </div>
+        </div>
+        <hr/>
+        <div class="row" style="margin-top:28px;">
+            <div class="col-md-6">
+              <p></p>
+            </div>
+            <div class="col-md-6"> 
+            </div>
+        </div>
+        <div id="fruit">
+            <div class="row" style="margin-top:25px;margin-bottom:25px;">
+                <div class="col-md-2 col-md-offset-1">
+                </div>
+                <div class="col-md-6">
+                  <form action="/index" method="POST">
+                    <input name="url" class="form-control input-md search-query" placeholder="Shorten Url" type="text"> 
+                    
+                </div>
+                <div class="col-md-2">
+                    <button name="encode" type="submit" class="btn btn-danger btn-sm form-control">Encode</button> 
+                  </form>
+                </div>
+            </div> 
+
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+              <div id="resultsHeader"></div>
+      </div>
+        </div>
+
+        <div id="results">
+      </div> 
+  </div>
+    
+    <div id="shortModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" >
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header well lead">
+                    <a class="close" data-dismiss="modal">&times;</a>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <label>Original URL</label> 
+                                    <input class="col-md-3 form-control" type="text" id="originalUrl">
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label>Your Shortened URL</label>
+                                    <input class="col-md-3 form-control" type="text" id="shortenedUrl">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer well lead" style="margin-bottom:0px;border-top:0px;">
+                </div>
+            </div>
+        </div>
+    </div> 
+    <div class="row">
+    </div>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.js"></script>
+</body>
+</html> 

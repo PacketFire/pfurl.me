@@ -1,0 +1,5 @@
+asyncpg==0.18.3
+flake8==3.6.0
+mypy==0.630
+mypy_extensions==0.4.1
+hashids==1.2.0
