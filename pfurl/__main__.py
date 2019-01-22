@@ -17,7 +17,7 @@ regex = re.compile(
 
 
 conn = psycopg2.connect(
-    'postgresql://postgres:postgres@localhost:15432/apophis'
+    'postgresql://pfurl:pfurl@localhost:15432/pfurl'
 )
 db = conn.cursor()
 
@@ -29,7 +29,7 @@ def index():
 
         if re.match(regex, url):
             ghash = generate_hash()
-            newurl = 'http://localhost:5000/' + ghash
+            newurl = 'http://pfurl.me/' + ghash
 
             results = {
                 "url": url,
@@ -70,4 +70,4 @@ def hash_redirect(hash):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(port=80)
