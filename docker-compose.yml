@@ -4,3 +4,13 @@ services:
     image: packetfire/pfurl
     build:
       context: ./
+  postgres:
+    image: postgres:10.4
+    environment:
+      POSTGRES_DB: apophis
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "15432:5432"
+    volumes:
+      - ./run/pg:/var/lib/postgresql/data
