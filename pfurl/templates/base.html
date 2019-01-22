@@ -116,63 +116,18 @@ body {
                 <div class="col-md-2 col-md-offset-1">
                 </div>
                 <div class="col-md-6">
-                  <form action="/index" method="POST">
-                    <input name="url" class="form-control input-md search-query" placeholder="url here.." type="text"> 
-                    
-                </div>
-                <div class="col-md-2">
-                    <button name="encode" type="submit" class="button form-control">Shorten</button> 
-                  </form>
+                    {% block data %}
+                    {% endblock %}
                 </div>
             </div> 
 
         </div>
-        <div class="row">
-            <div class="col-md-12">
-              <div id="resultsHeader"></div>
-      </div>
-        </div>
-
-        <div id="results">
-      </div> 
-  </div>
-    
-    <div id="shortModal" class="modal fade" role="dialog" aria-labelledby="myModalLabel" >
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header well lead">
-                    <a class="close" data-dismiss="modal">&times;</a>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <label>Original URL</label> 
-                                    <input class="col-md-3 form-control" type="text" id="originalUrl">
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <label>Your Shortened URL</label>
-                                    <input class="col-md-3 form-control" type="text" id="shortenedUrl">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer well lead" style="margin-bottom:0px;border-top:0px;">
-                </div>
-            </div>
-        </div>
-    </div> 
-    <div class="row">
-    </div>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.js"></script>
-    {% endblock %}
-    <div id="footer">
-      {% block footer %}
-      {% endblock %}
+        {% endblock %}
+      <div id="footer">
+        {% block footer %}
+        {% endblock %}
+      </div>
     </div>
   </body>
 </html>
