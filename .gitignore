@@ -1,0 +1,13 @@
+# Editor
+.idea
+.vscode
+
+# macOS
+.DS_Store
+
+# Python
+venv
+.mypy_cache
+*.egg-info
+*.pyc
+__pycache__
