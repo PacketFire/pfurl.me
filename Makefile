@@ -7,7 +7,7 @@ pip-compile:
 	source venv/bin/activate; pip-compile requirements.in
 
 pip-install:
-	source venv/bin/activate; pip install -r requirements.txt; pip install -r requirements-e.txt
+	source venv/bin/activate; pip install --upgrade pip; pip install -r requirements.txt;
 
 lint:
 	source venv/bin/activate; flake8 pfurl/
