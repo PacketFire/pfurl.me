@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, redirect
-from short import generate_hash
 import re
-import psycopg2
+import os
+import aiopg
+import aiohttp
+import aiohttp_jinja2
+import asyncio
+import jinja2
+import logging
+from short import generate_hash
 
 
-app = Flask(__name__)
-
+# app = Flask(__name__)
 regex = re.compile(
         r'^(?:http|ftp)s?://'  # http:// or https://
         r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])'
@@ -16,20 +20,45 @@ regex = re.compile(
         r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 
 
-conn = psycopg2.connect(
-    'postgresql://pfurl:pfurl@localhost:15432/pfurl'
-)
-db = conn.cursor()
+async def connect_db():
+    address = os.environ.get(
+        'POSTGRES_ADDRESS',
+        'localhost:15432'
+    )
+    username = os.environ.get(
+        'POSTGRES_USERNAME',
+        'postgres'
+    )
+    password = os.environ.get(
+        'POSTGRES_PASSWORD',
+        'postgres'
+    )
+    database = os.environ.get(
+        'POSTGRES_DATABASE',
+        'apophis'
+    )
+
+    dsn = 'postgresql://{}:{}@{}/{}'.format(
+        username,
+        password,
+        address,
+        database
+    )
+
+    try:
+        return await aiopg.create_pool(dsn)
+    except Exception as e:
+        logging.error(e)
+        raise e
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+async def index(request):
     if request.method == 'POST':
         url = request.form.get('url')
 
         if re.match(regex, url):
             ghash = generate_hash()
-            newurl = 'http://pfurl.me/' + ghash
+            newurl = 'http://localhost:8080/' + ghash
 
             results = {
                 "url": url,
@@ -40,34 +69,82 @@ def index():
             insert into pfurl (url, hash, newurl)
             values(%s, %s, %s);
             '''
-            db.execute(
-                statement,
-                (
-                    results['url'],
-                    ghash,
-                    results['newurl']
-                )
-            )
-            conn.commit()
 
-            return render_template('result.html', results=results)
+            pool = await connect_db()
+            async with pool.acquire() as connection:
+                async with connection.cursor() as cursor:
+                    await cursor.execute(
+                        statement,
+                        (
+                            results['url'],
+                            ghash,
+                            results['newurl'],
+                        )
+                    )
+            return aiohttp_jinja2.render_template(
+                'result.html',
+                request,
+                results
+            )
         else:
-            return render_template(
+            context = {'error:', 'input must contain valid url'}
+            return aiohttp_jinja2.render_template(
                 'error.html',
-                error="Input must contain valid url"
+                request,
+                context
             )
-    else:
-        return render_template('form.html')
 
 
-@app.route('/<hash>', methods=['GET', 'POST'])
-def hash_redirect(hash):
+async def hash_redirect(request):
     statement = 'select url from pfurl where hash=%s'
-    db.execute(statement, (hash,))
-    row = db.fetchone()
-    conn.close()
-    return redirect(row[0])
+    hash = request.match_info.get('hash')
+    pool = await connect_db()
+    async with pool.acquire() as connection:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                statement,
+                (hash,)
+            )
+            ret = []
+            async for row in cursor:
+                ret.append(row)
+
+    return aiohttp.web.HTTPFound(ret)
+
+
+async def http_handler():
+    app = aiohttp.web.Application()
+    app.router.add_route('GET', '/', index)
+    app.router.add_route('GET', '/{hash}', hash_redirect)
+
+    aiohttp_jinja2.setup(
+        app,
+        loader=jinja2.FileSystemLoader('pfurl/templates')
+    )
+
+    runner = aiohttp.web.AppRunner(app)
+    await runner.setup()
+
+    site = aiohttp.web.TCPSite(runner, '127.0.0.1', 8080)
+    await site.start()
+
+    print('Serving on http://127.0.0.1:8080/')
+
+
+async def run_coroutines():
+    colist = [http_handler()]
+    return await asyncio.gather(*colist, return_exceptions=True)
 
 
 if __name__ == "__main__":
-    app.run(port=80)
+    try:
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(http_handler())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        logging.debug('Exiting, caught keyboard interrupt.')
+        os._exit(0)
+    except Exception as e:
+        logging.error(e)
+    finally:
+        loop.close()
