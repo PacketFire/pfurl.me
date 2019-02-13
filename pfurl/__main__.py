@@ -62,7 +62,6 @@ async def index(request):
     data = await request.post()
 
     if await validate_url(data['url']) is not False:
-
         ghash = generate_hash()
         newurl = 'http://pfurl.me/' + ghash
         context = {
@@ -75,8 +74,7 @@ async def index(request):
         values(%s, %s, %s);
         '''
 
-        pool = await connect_db()
-        async with pool.acquire() as connection:
+        async with request.app['pool'].acquire() as connection:
             async with connection.cursor() as cursor:
                 await cursor.execute(
                     statement,
@@ -103,8 +101,8 @@ async def index(request):
 async def hash_redirect(request):
     statement = 'select url from pfurl where hash=%s'
     hash = request.match_info.get('hash')
-    pool = await connect_db()
-    async with pool.acquire() as connection:
+
+    async with request.app['pool'].acquire() as connection:
         async with connection.cursor() as cursor:
             await cursor.execute(
                 statement,
@@ -118,10 +116,14 @@ async def hash_redirect(request):
 
 
 async def http_handler():
+    pool = await connect_db()
+    print('Connected to postgresql!')
+
     app = aiohttp.web.Application()
     app.router.add_route('*', '/', index)
     app.router.add_route('GET', '/{hash}', hash_redirect)
     app.router.add_static('/pfurl/static', 'pfurl/static')
+    app['pool'] = pool
 
     aiohttp_jinja2.setup(
         app,
