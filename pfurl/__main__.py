@@ -1,4 +1,3 @@
-import re
 import os
 import aiopg
 import aiohttp
@@ -123,7 +122,6 @@ async def http_handler():
     app.router.add_route('*', '/', index)
     app.router.add_route('GET', '/{hash}', hash_redirect)
     app.router.add_static('/pfurl/static', 'pfurl/static')
-
 
     aiohttp_jinja2.setup(
         app,
