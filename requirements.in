@@ -1,7 +1,11 @@
-asyncpg==0.18.3
+#asyncpg==0.18.3
 flake8==3.6.0
 mypy==0.630
 mypy_extensions==0.4.1
 hashids==1.2.0
-psycopg2==2.7.6.1
-flask==1.0.2
+#psycopg2==2.7.6.1
+#flask==1.0.2
+aiopg==0.16.0
+aiohttp==3.4.4
+aiohttp_jinja2==1.1.0
+jinja2==2.10

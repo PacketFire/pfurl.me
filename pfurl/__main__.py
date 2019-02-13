@@ -1,73 +1,153 @@
-from flask import Flask, render_template, request, redirect
+import os
+import aiopg
+import aiohttp
+import aiohttp_jinja2
+import asyncio
+import jinja2
+import logging
 from short import generate_hash
-import re
-import psycopg2
+from urllib.parse import urlparse
 
 
-app = Flask(__name__)
+async def connect_db():
+    address = os.environ.get(
+        'POSTGRES_ADDRESS',
+        'localhost:15432'
+    )
+    username = os.environ.get(
+        'POSTGRES_USERNAME',
+        'postgres'
+    )
+    password = os.environ.get(
+        'POSTGRES_PASSWORD',
+        'postgres'
+    )
+    database = os.environ.get(
+        'POSTGRES_DATABASE',
+        'apophis'
+    )
 
-regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])'
-        r'?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+    dsn = 'postgresql://{}:{}@{}/{}'.format(
+        username,
+        password,
+        address,
+        database
+    )
+
+    try:
+        return await aiopg.create_pool(dsn)
+    except Exception as e:
+        logging.error(e)
+        raise e
 
 
-conn = psycopg2.connect(
-    'postgresql://pfurl:pfurl@localhost:15432/pfurl'
-)
-db = conn.cursor()
+async def validate_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
-    if request.method == 'POST':
-        url = request.form.get('url')
+@aiohttp_jinja2.template('base.html')
+async def index(request):
+    if request.method == 'GET':
+        context = {}
+        return aiohttp_jinja2.render_template(
+            'form.html',
+            request,
+            context
+        )
 
-        if re.match(regex, url):
-            ghash = generate_hash()
-            newurl = 'http://pfurl.me/' + ghash
+    data = await request.post()
 
-            results = {
-                "url": url,
-                "newurl": newurl
-            }
+    if await validate_url(data['url']) is not False:
+        ghash = generate_hash()
+        newurl = 'http://pfurl.me/' + ghash
+        context = {
+            "url": data['url'],
+            "newurl": newurl
+        }
 
-            statement = '''
-            insert into pfurl (url, hash, newurl)
-            values(%s, %s, %s);
-            '''
-            db.execute(
-                statement,
-                (
-                    results['url'],
-                    ghash,
-                    results['newurl']
+        statement = '''
+        insert into pfurl (url, hash, newurl)
+        values(%s, %s, %s);
+        '''
+
+        async with request.app['pool'].acquire() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    statement,
+                    (
+                        context['url'],
+                        ghash,
+                        context['newurl'],
+                    )
                 )
-            )
-            conn.commit()
+        return aiohttp_jinja2.render_template(
+            'result.html',
+            request,
+            context
+        )
 
-            return render_template('result.html', results=results)
-        else:
-            return render_template(
-                'error.html',
-                error="Input must contain valid url"
-            )
-    else:
-        return render_template('form.html')
+    context = {'error': 'Input must contain valid url'}
+    return aiohttp_jinja2.render_template(
+        'error.html',
+        request,
+        context
+    )
 
 
-@app.route('/<hash>', methods=['GET', 'POST'])
-def hash_redirect(hash):
+async def hash_redirect(request):
     statement = 'select url from pfurl where hash=%s'
-    db.execute(statement, (hash,))
-    row = db.fetchone()
-    conn.close()
-    return redirect(row[0])
+    hash = request.match_info.get('hash')
+
+    async with request.app['pool'].acquire() as connection:
+        async with connection.cursor() as cursor:
+            await cursor.execute(
+                statement,
+                (hash,)
+            )
+            ret = []
+            async for row in cursor:
+                ret.append(row)
+
+    return aiohttp.web.HTTPFound(row[0])
+
+
+async def http_handler():
+    pool = await connect_db()
+    print('Connected to postgresql!')
+
+    app = aiohttp.web.Application()
+    app.router.add_route('*', '/', index)
+    app.router.add_route('GET', '/{hash}', hash_redirect)
+    app.router.add_static('/pfurl/static', 'pfurl/static')
+    app['pool'] = pool
+
+    aiohttp_jinja2.setup(
+        app,
+        loader=jinja2.FileSystemLoader('pfurl/templates')
+    )
+
+    runner = aiohttp.web.AppRunner(app)
+    await runner.setup()
+
+    site = aiohttp.web.TCPSite(runner, '127.0.0.1', 8080)
+    await site.start()
+
+    print('Serving on http://127.0.0.1:8080/')
 
 
 if __name__ == "__main__":
-    app.run(port=80)
+    try:
+        loop = asyncio.get_event_loop()
+        asyncio.ensure_future(http_handler())
+        loop.run_forever()
+    except KeyboardInterrupt:
+        logging.debug('Exiting, caught keyboard interrupt.')
+        os._exit(0)
+    except Exception as e:
+        logging.error(e)
+    finally:
+        loop.close()
