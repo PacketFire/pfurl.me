@@ -7,17 +7,7 @@ import asyncio
 import jinja2
 import logging
 from short import generate_hash
-
-
-# app = Flask(__name__)
-regex = re.compile(
-        r'^(?:http|ftp)s?://'  # http:// or https://
-        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])'
-        r'?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|'  # domain...
-        r'localhost|'  # localhost...
-        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})'  # ...or ip
-        r'(?::\d+)?'  # optional port
-        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
+from urllib.parse import urlparse
 
 
 async def connect_db():
@@ -52,16 +42,32 @@ async def connect_db():
         raise e
 
 
-async def index(request):
-    if request.method == 'POST':
-        url = request.form.get('url')
+async def validate_url(url):
+    try:
+        result = urlparse(url)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
 
-        if re.match(regex, url):
+
+@aiohttp_jinja2.template('base.html')
+async def index(request):
+    if request.method == 'GET':
+        context = {}
+        return aiohttp_jinja2.render_template(
+            'form.html',
+            request,
+            context
+        )
+    else:
+        data = await request.post()
+
+        if await validate_url(data['url']) is not False:
             ghash = generate_hash()
             newurl = 'http://localhost:8080/' + ghash
 
-            results = {
-                "url": url,
+            context = {
+                "url": data['url'],
                 "newurl": newurl
             }
 
@@ -76,18 +82,18 @@ async def index(request):
                     await cursor.execute(
                         statement,
                         (
-                            results['url'],
+                            context['url'],
                             ghash,
-                            results['newurl'],
+                            context['newurl'],
                         )
                     )
             return aiohttp_jinja2.render_template(
                 'result.html',
                 request,
-                results
+                context
             )
         else:
-            context = {'error:', 'input must contain valid url'}
+            context = {'error': 'Input must contain valid url'}
             return aiohttp_jinja2.render_template(
                 'error.html',
                 request,
@@ -109,13 +115,15 @@ async def hash_redirect(request):
             async for row in cursor:
                 ret.append(row)
 
-    return aiohttp.web.HTTPFound(ret)
+    return aiohttp.web.HTTPFound(row[0])
 
 
 async def http_handler():
     app = aiohttp.web.Application()
-    app.router.add_route('GET', '/', index)
+    app.router.add_route('*', '/', index)
     app.router.add_route('GET', '/{hash}', hash_redirect)
+    app.router.add_static('/pfurl/static', 'pfurl/static')
+
 
     aiohttp_jinja2.setup(
         app,
