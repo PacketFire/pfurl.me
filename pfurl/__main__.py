@@ -58,46 +58,46 @@ async def index(request):
             request,
             context
         )
-    else:
-        data = await request.post()
 
-        if await validate_url(data['url']) is not False:
-            ghash = generate_hash()
-            newurl = 'http://localhost:8080/' + ghash
+    data = await request.post()
 
-            context = {
-                "url": data['url'],
-                "newurl": newurl
-            }
+    if await validate_url(data['url']) is not False:
 
-            statement = '''
-            insert into pfurl (url, hash, newurl)
-            values(%s, %s, %s);
-            '''
+        ghash = generate_hash()
+        newurl = 'http://pfurl.me/' + ghash
+        context = {
+            "url": data['url'],
+            "newurl": newurl
+        }
 
-            pool = await connect_db()
-            async with pool.acquire() as connection:
-                async with connection.cursor() as cursor:
-                    await cursor.execute(
-                        statement,
-                        (
-                            context['url'],
-                            ghash,
-                            context['newurl'],
-                        )
+        statement = '''
+        insert into pfurl (url, hash, newurl)
+        values(%s, %s, %s);
+        '''
+
+        pool = await connect_db()
+        async with pool.acquire() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    statement,
+                    (
+                        context['url'],
+                        ghash,
+                        context['newurl'],
                     )
-            return aiohttp_jinja2.render_template(
-                'result.html',
-                request,
-                context
-            )
-        else:
-            context = {'error': 'Input must contain valid url'}
-            return aiohttp_jinja2.render_template(
-                'error.html',
-                request,
-                context
-            )
+                )
+        return aiohttp_jinja2.render_template(
+            'result.html',
+            request,
+            context
+        )
+
+    context = {'error': 'Input must contain valid url'}
+    return aiohttp_jinja2.render_template(
+        'error.html',
+        request,
+        context
+    )
 
 
 async def hash_redirect(request):
@@ -135,11 +135,6 @@ async def http_handler():
     await site.start()
 
     print('Serving on http://127.0.0.1:8080/')
-
-
-async def run_coroutines():
-    colist = [http_handler()]
-    return await asyncio.gather(*colist, return_exceptions=True)
 
 
 if __name__ == "__main__":
