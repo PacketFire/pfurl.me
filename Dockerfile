@@ -2,9 +2,11 @@ FROM packetfire/pfurl:latest
 
 RUN apt-get update
 
-COPY . .
+COPY . /pfurl.me/
 
 RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+RUN cd pfurl.me/ && \
+    pip install -r requirements.txt
 
+WORKDIR /pfurl.me
 ENTRYPOINT [ "python", "pfurl" ]

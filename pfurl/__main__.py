@@ -70,7 +70,7 @@ async def index(request):
         }
 
         statement = '''
-        insert into pfurl (url, hash, newurl)
+        insert into urls (url, hash, newurl)
         values(%s, %s, %s);
         '''
 
@@ -99,7 +99,7 @@ async def index(request):
 
 
 async def hash_redirect(request):
-    statement = 'select url from pfurl where hash=%s'
+    statement = 'select url from urls where hash=%s'
     hash = request.match_info.get('hash')
 
     async with request.app['pool'].acquire() as connection:
