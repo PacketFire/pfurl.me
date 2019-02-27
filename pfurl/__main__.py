@@ -12,19 +12,19 @@ from urllib.parse import urlparse
 async def connect_db():
     address = os.environ.get(
         'POSTGRES_ADDRESS',
-        'localhost:15432'
+        'localhost:5432'
     )
     username = os.environ.get(
         'POSTGRES_USERNAME',
-        'postgres'
+        'pfurl'
     )
     password = os.environ.get(
         'POSTGRES_PASSWORD',
-        'postgres'
+        'pfurl'
     )
     database = os.environ.get(
         'POSTGRES_DATABASE',
-        'apophis'
+        'pfurl'
     )
 
     dsn = 'postgresql://{}:{}@{}/{}'.format(
