@@ -54,12 +54,12 @@ async def index(request):
 
     if request.method == 'GET':
         return aiohttp_jinja2.render_template(
-            'index.html', 
-            request, 
+            'index.html',
+            request,
             context
         )
-    
-    data = await request.post()
+
+    data = await request.json()
 
     if await validate_url(data['url']) is not False:
         ghash = generate_hash()
@@ -84,7 +84,7 @@ async def index(request):
                         context['newurl'],
                     )
                 )
-        
+
         return aiohttp.web.json_response(context['newurl'])
 
 
