@@ -49,16 +49,14 @@ async def validate_url(url):
         return False
 
 
-async def index(request):
-    context = {}
+async def index_get(request):
+    return aiohttp_jinja2.render_template(
+        'index.html',
+        request
+    )
 
-    if request.method == 'GET':
-        return aiohttp_jinja2.render_template(
-            'index.html',
-            request,
-            context
-        )
 
+async def index_post(request):
     data = await request.json()
 
     if await validate_url(data['url']) is not False:
@@ -160,7 +158,8 @@ async def http_handler():
     print('Connected to postgresql!')
 
     app = aiohttp.web.Application()
-    app.router.add_route('*', '/', index)
+    app.router.add_route('GET', '/', index_get)
+    app.router.add_route('POST', '/', index_post)
     app.router.add_route('*', '/up', up_index)
     app.router.add_route('GET', '/{hash}', hash_redirect)
     app.router.add_static('/pfurl/static', 'pfurl/static')
