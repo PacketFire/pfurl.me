@@ -49,8 +49,47 @@ async def validate_url(url):
         return False
 
 
-@aiohttp_jinja2.template('base.html')
 async def index(request):
+    context = {}
+
+    if request.method == 'GET':
+        return aiohttp_jinja2.render_template(
+            'index.html', 
+            request, 
+            context
+        )
+    
+    data = await request.post()
+
+    if await validate_url(data['url']) is not False:
+        ghash = generate_hash()
+        newurl = 'http://pfurl.me/' + ghash
+        context = {
+            "url": data['url'],
+            "newurl": newurl
+        }
+
+        statement = '''
+        insert into urls (url, hash, newurl)
+        values(%s, %s, %s);
+        '''
+
+        async with request.app['pool'].acquire() as connection:
+            async with connection.cursor() as cursor:
+                await cursor.execute(
+                    statement,
+                    (
+                        context['url'],
+                        ghash,
+                        context['newurl'],
+                    )
+                )
+        
+        return aiohttp.web.json_response(context['newurl'])
+
+
+@aiohttp_jinja2.template('base.html')
+async def up_index(request):
     if request.method == 'GET':
         context = {}
         return aiohttp_jinja2.render_template(
@@ -60,6 +99,7 @@ async def index(request):
         )
 
     data = await request.post()
+    print(data.url)
 
     if await validate_url(data['url']) is not False:
         ghash = generate_hash()
@@ -121,6 +161,7 @@ async def http_handler():
 
     app = aiohttp.web.Application()
     app.router.add_route('*', '/', index)
+    app.router.add_route('*', '/up', up_index)
     app.router.add_route('GET', '/{hash}', hash_redirect)
     app.router.add_static('/pfurl/static', 'pfurl/static')
     app['pool'] = pool
