@@ -5,6 +5,9 @@ import aiohttp_jinja2
 import asyncio
 import jinja2
 import logging
+import requests
+import logging
+import json
 from short import generate_hash
 from urllib.parse import urlparse
 
@@ -50,9 +53,11 @@ async def validate_url(url):
 
 
 async def index_get(request):
+    context = {}
     return aiohttp_jinja2.render_template(
         'index.html',
-        request
+        request,
+        context
     )
 
 
@@ -88,8 +93,9 @@ async def index_post(request):
 
 @aiohttp_jinja2.template('base.html')
 async def up_index(request):
+    context = {}
+
     if request.method == 'GET':
-        context = {}
         return aiohttp_jinja2.render_template(
             'form.html',
             request,
@@ -97,18 +103,34 @@ async def up_index(request):
         )
 
     data = await request.post()
-    print(data.url)
-
+    
     if await validate_url(data['url']) is not False:
+        """ Using api method """
+        """
+        url = 'http://pfurl.me/'
+        headers = {'Content-Type': 'application/json'}
+
+        payload = {'url': data['url']}
+
+        response = requests.post(url, headers=headers, json=payload)
+        print(response)
+        body = response.json()
+        context = {
+            'url': data['url'],
+            'newurl': body['url']
+        }
+        """
+        """ Generating hash method """ 
+        
         ghash = generate_hash()
         newurl = 'http://pfurl.me/' + ghash
         context = {
-            "url": data['url'],
-            "newurl": newurl
+            'url': data['url'],
+            'newurl': newurl
         }
-
+        
         statement = '''
-        insert into pfurl (url, hash, newurl)
+        insert into urls (url, hash, newurl)
         values(%s, %s, %s);
         '''
 
@@ -122,12 +144,13 @@ async def up_index(request):
                         context['newurl'],
                     )
                 )
+
         return aiohttp_jinja2.render_template(
             'result.html',
             request,
             context
         )
-
+ 
     context = {'error': 'Input must contain valid url'}
     return aiohttp_jinja2.render_template(
         'error.html',
@@ -135,11 +158,11 @@ async def up_index(request):
         context
     )
 
-
+ 
 async def hash_redirect(request):
     statement = 'select url from pfurl where hash=%s'
     hash = request.match_info.get('hash')
-
+    
     async with request.app['pool'].acquire() as connection:
         async with connection.cursor() as cursor:
             await cursor.execute(
@@ -176,7 +199,7 @@ async def http_handler():
     site = aiohttp.web.TCPSite(runner, '127.0.0.1', 8080)
     await site.start()
 
-    print('Serving on http://127.0.0.1:8080/')
+    print('Serving on http://localhost:8080/')
 
 
 if __name__ == "__main__":
