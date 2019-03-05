@@ -13,7 +13,7 @@
 ###                                                                          ###
 #                                                                              #
 #                       __            _                                        #
-#                  __  / _|_   _ _ __| |  _ __ ___   ___                       #
+#                _ __  / _|_   _ _ __| |  _ __ ___   ___                       #
 #               | '_ \| |_| | | | '__| | | '_ ` _ \ / _ \                      #
 #               | |_) |  _| |_| | |  | |_| | | | | |  __/                      #
 #               | .__/|_|  \__,_|_|  |_(_)_| |_| |_|\___|                      #
@@ -38,7 +38,7 @@ Usage:
  
     POST to http://pfurl.me and receive a shortened URL.
 
-    $ curl -X POST -d {"url": "<a href="http://www.packetfire.org">http://www.packetfire.org</a>"}
+    $ curl -X POST -d '{"url": "http://www.packetfire.org"}' pfurl.me
 
     The POST will return a link resembling <a href="http://pfurl.me/O8rIdl">http://pfurl.me/O8rIdl</a> 
     that will redirect to your URL.
