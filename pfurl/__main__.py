@@ -171,7 +171,7 @@ async def hash_redirect(request):
             async for row in cursor:
                 ret.append(row)
 
-    return aiohttp.web.HTTPFound(ret[0])
+    return aiohttp.web.HTTPFound(row[0])
 
 
 async def http_handler():
