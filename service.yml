@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pfurl
+  labels:
+    app: pfurl
+spec:
+  type: LoadBalancer
+  loadBalancerIP: 34.73.178.2
+  ports:
+    - port: 80
+      protocol: TCP
+  selector:
+    app: pfurl
