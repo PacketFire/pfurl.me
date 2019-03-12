@@ -15,35 +15,35 @@ spec:
     spec:
       containers:
         - name: pfurl
-          image: packetfire/pfurl:latest
+          image: gcr.io/packetfire-218019/packetfire/pfurl:latest
           ports:
             - containerPort: 80
           env:
-            - name: PFPG_DB_HOST
-              value: 127.0.0.1:3306
-            - name: PFPG_DB_USER
+            - name: POSTGRES_ADDRESS
+              value: 127.0.0.1:5432
+            - name: POSTGRES_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: cloudsql-db-credentials
+                  name: pfurl-postgres-db-credentials
                   key: username
-            - name: PFPG_DB_PASSWORD
+            - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cloudsql-db-credentials
+                  name: pfurl-postgres-db-credentials
                   key: password
         - name: cloudsql-proxy
           image: gcr.io/cloudsql-docker/gce-proxy:1.11
           command: ["/cloud_sql_proxy",
-                    "-instances=<INSTANCE_CONNECTION_NAME>=tcp:3306",
-                    "-credential_file=/secrets/cloudsql/credentials.json"]
+                    "-instances=packetfire-218019:us-east1:pfpg=tcp:5432",
+		    "-credential_file=/secrets/cloudsql/key.json"]
           securityContext:
             runAsUser: 2  # non-root user
             allowPrivilegeEscalation: false
           volumeMounts:
-            - name: cloudsql-instance-credentials
+            - name: pfurl-token
               mountPath: /secrets/cloudsql
               readOnly: true
       volumes:
-        - name: cloudsql-instance-credentials
+        - name: pfurl-token
           secret:
-            secretName: cloudsql-instance-credentials
+            secretName: pfurl-token
