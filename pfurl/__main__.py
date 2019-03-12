@@ -160,7 +160,7 @@ async def up_index(request):
 
  
 async def hash_redirect(request):
-    statement = 'select url from pfurl where hash=%s'
+    statement = 'select url from urls where hash=%s'
     hash = request.match_info.get('hash')
     
     async with request.app['pool'].acquire() as connection:
@@ -173,7 +173,7 @@ async def hash_redirect(request):
             async for row in cursor:
                 ret.append(row)
 
-    return aiohttp.web.HTTPFound(row[0])
+    return aiohttp.web.HTTPFound(ret[0])
 
 
 async def http_handler():
