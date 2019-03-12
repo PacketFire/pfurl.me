@@ -4,7 +4,26 @@
         <title>
             pfurl.me - url shortener
         </title>
-        <link rel="stylesheet" href="pfurl/static/style.css">
+        <style>
+            body {
+              background: #36393E;
+              font-family: monospace;
+              color: #fffdd0;
+              text-align: left;
+            }
+
+            h1 {
+              margin-top: 5px;
+              color: #fffdd0;
+              font-size: 22px;
+              line-height: 1;
+            }
+  
+            a:link {color:#3A87AD;}     
+            a:visited {color:#3A87AD;}  
+            a:hover {color:#3A87AD;}  
+            a:active {color:#3A87AD;} 
+        </style>
     </head>
     <body>
         <pre>
@@ -40,7 +59,7 @@ Usage:
 
     $ curl -X POST -d '{"url": "http://www.packetfire.org"}' pfurl.me
 
-    The POST will return a link resembling <a href="http://pfurl.me/O8rIdl">http://pfurl.me/O8rIdl</a> 
+    The POST will return a link resembling <a href="http://pfurl.me/l43iJj">http://pfurl.me/l43iJj</a> 
     that will redirect to your URL.
 
     In addition to the API, located <a href="http://pfurl.me/up">here</a>. 
