@@ -194,10 +194,10 @@ async def http_handler():
     runner = aiohttp.web.AppRunner(app)
     await runner.setup()
 
-    site = aiohttp.web.TCPSite(runner, '127.0.0.1', 8080)
+    site = aiohttp.web.TCPSite(runner, '0.0.0.0', 80)
     await site.start()
 
-    print('Serving on http://localhost:8080/')
+    print('Serving on http://localhost:80/')
 
 
 if __name__ == "__main__":
