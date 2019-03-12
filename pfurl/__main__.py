@@ -5,9 +5,7 @@ import aiohttp_jinja2
 import asyncio
 import jinja2
 import logging
-import requests
-import logging
-import json
+# import requests  # use if using api to store in /up
 from short import generate_hash
 from urllib.parse import urlparse
 
@@ -103,7 +101,7 @@ async def up_index(request):
         )
 
     data = await request.post()
-    
+
     if await validate_url(data['url']) is not False:
         """ Using api method """
         """
@@ -120,15 +118,15 @@ async def up_index(request):
             'newurl': body['url']
         }
         """
-        """ Generating hash method """ 
-        
+        """ Generating hash method """
+
         ghash = generate_hash()
         newurl = 'http://pfurl.me/' + ghash
         context = {
             'url': data['url'],
             'newurl': newurl
         }
-        
+
         statement = '''
         insert into urls (url, hash, newurl)
         values(%s, %s, %s);
@@ -150,7 +148,7 @@ async def up_index(request):
             request,
             context
         )
- 
+
     context = {'error': 'Input must contain valid url'}
     return aiohttp_jinja2.render_template(
         'error.html',
@@ -158,11 +156,11 @@ async def up_index(request):
         context
     )
 
- 
+
 async def hash_redirect(request):
     statement = 'select url from urls where hash=%s'
     hash = request.match_info.get('hash')
-    
+
     async with request.app['pool'].acquire() as connection:
         async with connection.cursor() as cursor:
             await cursor.execute(
