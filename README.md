@@ -24,4 +24,4 @@ $ docker-compose run flyway-migrate
 ## API Usage
 The api can be called via the ``curl`` command, if executed correctly a shortened url will be returned.
 
-Example: ``curl -X POST -d '{"url": "http://yourlongurlhere.com"}' -H 'Content-Type: application/json'``
+Example: ``curl -X POST -d '{"url": "http://yourlongurlhere.com"}' -H 'Content-Type: application/json' pfurl.me``
