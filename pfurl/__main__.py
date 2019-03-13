@@ -161,7 +161,7 @@ async def hash_redirect(request):
     statement = 'select url from urls where hash=%s'
     hash = request.match_info.get('hash')
     ret = []
-    
+
     async with request.app['pool'].acquire() as connection:
         async with connection.cursor() as cursor:
             await cursor.execute(
