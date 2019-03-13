@@ -86,7 +86,7 @@ async def index_post(request):
                     )
                 )
 
-        return aiohttp.web.json_response(context['newurl'])
+        return aiohttp.web.json_response(context['newurl'].strip('"'))
 
 
 @aiohttp_jinja2.template('base.html')
@@ -160,18 +160,18 @@ async def up_index(request):
 async def hash_redirect(request):
     statement = 'select url from urls where hash=%s'
     hash = request.match_info.get('hash')
-
+    ret = []
+    
     async with request.app['pool'].acquire() as connection:
         async with connection.cursor() as cursor:
             await cursor.execute(
                 statement,
                 (hash,)
             )
-            ret = []
             async for row in cursor:
                 ret.append(row)
 
-    return aiohttp.web.HTTPFound(row[0])
+    return aiohttp.web.HTTPFound(ret[0])
 
 
 async def http_handler():
