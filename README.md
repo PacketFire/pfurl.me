@@ -5,6 +5,8 @@
 ## Description
 Pfurl is a url shortening API designed to be easily used with ``curl``. A user interface is also included via ``/up`` route for ease of use if ``curl`` is not an option.
 
+The website: [http://pfurl.me](http://pfurl.me)
+
 ## Dependencies
 * Docker + Compose
 * Python 3.6+
