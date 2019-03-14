@@ -61,47 +61,48 @@
             circle closest-side,
              rgba(180,180,180,.25) 99%,
              rgba(0,0,0,0) 100%
-        );
-    background-repeat: no-repeat;
-    transform: scale(5);
-    opacity: 0;
-    transition: .75s ease-out transform, .25s .5s ease-in opacity;
-    transform-origin: inherit;
-    background-position: inherit;
-  }
+          );
+          background-repeat: no-repeat;
+          transform: scale(5);
+          opacity: 0;
+          transition: .75s ease-out transform, .25s .5s ease-in opacity;
+          transform-origin: inherit;
+          background-position: inherit;
+        }
 
-  .button:active::before {
-    transition: none;
-    opacity: 1;
-    transform: scale(0);
-  }
+        .button:active::before {
+          transition: none;
+          opacity: 1;
+          transform: scale(0);
+        }
 
 
-body {
-  font: 80%/1.5 Arial;
-}
+        body {
+          font: 80%/1.5 Arial;
+        }
 
-.button {
-  font: 120%/1.5 Arial;
-  border: none;
-  border-radius: 5px;
-  padding: .5em 1.3em;
-  vertical-align:middle;
-}
-.copybtn {
-  display: inline-block;
-  position: relative;
-  overflow: hidden;
-  outline: 0;
-  border: none;
-  border-radius: 5px;
-  background: #984848;
-  text-decoration: none;
-  cursor: default;
-  color: #fffdd0;
-  vertical-align:middle;
-  height: 35px;
-}        
+        .button {
+          font: 120%/1.5 Arial;
+          border: none;
+          border-radius: 5px;
+          padding: .5em 1.3em;
+          vertical-align:middle;
+        }
+
+        .copybtn {
+          display: inline-block;
+          position: relative;
+          overflow: hidden;
+          outline: 0;
+          border: none;
+          border-radius: 5px;
+          background: #984848;
+          text-decoration: none;
+          cursor: default;
+          color: #fffdd0;
+          vertical-align:middle;
+          height: 35px;
+        }        
     </style>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
 </head> 
