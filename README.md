@@ -3,7 +3,9 @@
 [![Build Status](https://travis-ci.org/PacketFire/pfurl.me.svg?branch=master)](https://travis-ci.org/PacketFire/pfurl.me)
 
 ## Description
-Pfurl is a url shortener api designed to be easily used with curl. A user interface is also included via /up route for ease of use if curl is not an option.
+Pfurl is a url shortening API designed to be easily used with ``curl``. A user interface is also included via ``/up`` route for ease of use if ``curl`` is not an option.
+
+The website: [http://pfurl.me](http://pfurl.me)
 
 ## Dependencies
 * Docker + Compose
@@ -22,6 +24,6 @@ $ docker-compose run flyway-migrate
 ```
 
 ## API Usage
-The api can be called via the ``curl`` command, if executed correctly a shortened url will be returned.
+The API can be called via the ``curl`` command, if executed correctly a shortened url will be returned.
 
 Example: ``curl -X POST -d '{"url": "http://yourlongurlhere.com"}' -H 'Content-Type: application/json' pfurl.me``
