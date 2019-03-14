@@ -2,7 +2,7 @@
 {% block data %}
 <script src="https://cdn.jsdelivr.net/npm/clipboard@2/dist/clipboard.min.js"></script>
 <script>
-    var clipboard = new ClipboardJS('.btn');
+    var clipboard = new ClipboardJS('.copybtn');
     clipboard.on('success', function(e) {
         console.log(e);
     });
@@ -13,7 +13,7 @@
 
 <p style="font-size: 20px; color: #fffdd0">
     You shortened url: <a id="newurl" value="{{ newurl }}" href="{{ newurl }}">{{ newurl }}</a>
-    <button class="btn" data-clipboard-target="#newurl">
+    <button class="copybtn" data-clipboard-target="#newurl">
         Copy
 <!--        <img src="https://github.com/PacketFire/pfurl.me/raw/master/pfurl/static/clippy.svg" alt="Copy"> -->
     </button>
