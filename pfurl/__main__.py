@@ -86,7 +86,7 @@ async def index_post(request):
                     )
                 )
 
-        return aiohttp.web.json_response(context['newurl'].strip('"'))
+        return aiohttp.web.Response(text=context['newurl'])
 
 
 @aiohttp_jinja2.template('base.html')
